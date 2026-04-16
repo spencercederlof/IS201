@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Face the Dragon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+background:black;
+overflow:hidden;
+font-family:'Press Start 2P';
+color:#ff8c2a;
+}
+
+/* vignette */
+
+body::after{
+content:"";
+position:fixed;
+inset:0;
+background:radial-gradient(circle at center, transparent 40%, black 100%);
+pointer-events:none;
+}
+
+/* parallax depth */
+
+.bg1,.bg2,.bg3{
+position:fixed;
+width:120%;
+height:120%;
+top:-10%;
+left:-10%;
+pointer-events:none;
+}
+
+.bg1{
+background:radial-gradient(circle at 50% 60%,#111,#050505);
+z-index:-3;
+}
+
+.bg2{
+background:
+radial-gradient(circle at 30% 40%,rgba(80,80,80,.15),transparent 70%),
+radial-gradient(circle at 70% 70%,rgba(120,120,120,.1),transparent 70%);
+animation:drift 60s linear infinite;
+z-index:-2;
+}
+
+.bg3{
+background:
+radial-gradient(circle at 50% 50%,rgba(255,120,0,.08),transparent 70%);
+animation:drift2 120s linear infinite;
+z-index:-1;
+}
+
+@keyframes drift{
+0%{transform:translateX(0)}
+100%{transform:translateX(-300px)}
+}
+
+@keyframes drift2{
+0%{transform:translateX(0)}
+100%{transform:translateX(200px)}
+}
+
+/* embers */
+
+.particle{
+position:fixed;
+width:4px;
+height:4px;
+background:#ff7a00;
+border-radius:50%;
+opacity:.8;
+animation:ember linear infinite;
+pointer-events:none;
+}
+
+@keyframes ember{
+0%{transform:translateY(0);opacity:1;}
+100%{transform:translateY(-900px);opacity:0;}
+}
+
+/* game box */
+
+.game{
+position:relative;
+width:760px;
+margin:auto;
+margin-top:40px;
+padding:30px;
+background:#050505;
+border:1px solid #3a1a00;
+box-shadow:
+0 0 120px rgba(255,120,0,.35),
+inset 0 0 120px black;
+text-align:center;
+}
+
+/* title */
+
+h1{
+font-family:'Cinzel';
+letter-spacing:7px;
+font-size:32px;
+margin-bottom:30px;
+}
+
+/* surrender button */
+
+.surrenderBtn{
+position:absolute;
+top:20px;
+right:20px;
+font-size:8px;
+padding:6px 10px;
+background:#2b0000;
+color:#ff4d4d;
+border:1px solid #ff2a2a;
+cursor:pointer;
+}
+
+.surrenderBtn:hover{
+background:#4a0000;
+box-shadow:0 0 12px red;
+}
+
+/* bars */
+
+.bar{
+height:16px;
+background:#111;
+border:1px solid #3a1a00;
+margin-bottom:20px;
+}
+
+.fill{
+height:100%;
+background:linear-gradient(to right,#ff7a00,#ffc266);
+transition:.4s;
+}
+
+/* scene */
+
+.scene{
+position:relative;
+width:680px;
+height:300px;
+margin:40px auto;
+background:radial-gradient(circle at center,#111,#050505);
+border:1px solid #3a1a00;
+overflow:hidden;
+box-shadow:
+0 0 70px rgba(255,120,0,.25),
+inset 0 0 120px black;
+}
+
+/* dragon */
+
+.dragon{
+position:absolute;
+right:50px;
+bottom:40px;
+height:200px;
+transform:scaleX(-1);
+image-rendering:pixelated;
+filter:drop-shadow(0 0 40px rgba(255,60,0,.6));
+animation:dragonIdle 3s ease-in-out infinite;
+}
+
+@keyframes dragonIdle{
+0%{transform:scaleX(-1) translateY(0)}
+50%{transform:scaleX(-1) translateY(-12px)}
+100%{transform:scaleX(-1) translateY(0)}
+}
+
+/* knight */
+
+.player{
+position:absolute;
+left:90px;
+bottom:40px;
+height:140px;
+transform:scaleX(-1);
+image-rendering:pixelated;
+cursor:pointer;
+}
+
+/* attack jump */
+
+.attack{
+animation:attack .45s;
+}
+
+@keyframes attack{
+0%{transform:scaleX(-1) translateX(0) translateY(0);}
+40%{transform:scaleX(-1) translateX(120px) translateY(-40px);}
+100%{transform:scaleX(-1) translateX(0) translateY(0);}
+}
+
+/* roll */
+
+.roll{
+animation:rollMove .65s ease-in-out;
+}
+
+@keyframes rollMove{
+0%{
+left:90px;
+transform:scaleX(-1) rotate(0deg);
+}
+40%{
+left:260px;
+transform:scaleX(-1) rotate(-540deg);
+}
+100%{
+left:90px;
+transform:scaleX(-1) rotate(-720deg);
+}
+}
+
+/* block */
+
+.block{
+animation:block .3s;
+}
+
+@keyframes block{
+0%{transform:scaleX(-1) scale(1)}
+50%{transform:scaleX(-1) scale(1.35)}
+100%{transform:scaleX(-1) scale(1)}
+}
+
+/* slash */
+
+.slash{
+position:absolute;
+left:260px;
+bottom:150px;
+width:170px;
+height:170px;
+border-radius:50%;
+border:4px solid #ffc266;
+box-shadow:
+0 0 40px orange,
+0 0 90px rgba(255,120,0,.9);
+animation:slash .35s forwards;
+}
+
+@keyframes slash{
+0%{opacity:1;transform:scale(.5);}
+100%{opacity:0;transform:scale(1.9);}
+}
+
+/* fire breath */
+
+.fire{
+position:absolute;
+right:190px;
+bottom:120px;
+width:360px;
+height:160px;
+background:
+radial-gradient(circle,
+rgba(255,180,0,1),
+rgba(255,80,0,.9),
+rgba(255,0,0,.6),
+transparent 70%);
+filter:blur(14px);
+animation:flame .7s forwards;
+}
+
+@keyframes flame{
+0%{opacity:0;transform:scale(.2);}
+40%{opacity:1;}
+100%{opacity:0;transform:scale(1.7);}
+}
+
+/* dust */
+
+.dust{
+position:absolute;
+left:150px;
+bottom:40px;
+width:100px;
+height:40px;
+background:rgba(150,150,150,.35);
+filter:blur(12px);
+animation:dust .5s forwards;
+}
+
+@keyframes dust{
+0%{opacity:.9;transform:scale(.5);}
+100%{opacity:0;transform:scale(2.4);}
+}
+
+/* charge */
+
+.charge{
+animation:charge 1.6s forwards;
+}
+
+@keyframes charge{
+0%{filter:brightness(1);}
+50%{filter:brightness(3);}
+100%{filter:brightness(2);}
+}
+
+/* spin */
+
+.spin{
+animation:spinMove 1.6s forwards;
+}
+
+@keyframes spinMove{
+0%{
+left:90px;
+transform:scaleX(-1) rotate(0deg);
+}
+60%{
+left:420px;
+transform:scaleX(-1) rotate(-540deg);
+}
+100%{
+left:520px;
+transform:scaleX(-1) rotate(-720deg);
+}
+}
+
+/* shake */
+
+.shake{
+animation:shake .35s;
+}
+
+@keyframes shake{
+0%{transform:translate(0)}
+25%{transform:translate(-10px,6px)}
+50%{transform:translate(10px,-6px)}
+75%{transform:translate(-6px,4px)}
+100%{transform:translate(0)}
+}
+
+/* buttons */
+
+button{
+margin:10px;
+padding:14px 20px;
+background:#0a0a0a;
+color:#ff8c2a;
+border:1px solid #5a2a00;
+font-family:'Press Start 2P';
+cursor:pointer;
+}
+
+button:hover{
+box-shadow:0 0 30px rgba(255,120,0,.9);
+}
+
+/* return */
+
+.returnBtn{
+margin-top:20px;
+font-size:9px;
+padding:8px 14px;
+background:#1a0800;
+border:1px solid #ff8c2a;
+color:#ffb347;
+}
+
+/* overlays */
+
+.overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-family:'Cinzel';
+letter-spacing:9px;
+font-size:50px;
+animation:fade 2s;
+}
+
+@keyframes fade{
+0%{opacity:0}
+100%{opacity:1}
+}
+
+/* surrender flames */
+
+.flameScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:
+radial-gradient(circle,
+rgba(255,120,0,1),
+rgba(255,40,0,.9),
+black);
+animation:burn 2s forwards;
+z-index:999;
+}
+
+@keyframes burn{
+0%{opacity:0;transform:scale(.5);}
+100%{opacity:1;transform:scale(1.3);}
+}
+
+#text{
+font-size:11px;
+margin-top:20px;
+color:#ffb06a;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bg1"></div>
+<div class="bg2"></div>
+<div class="bg3"></div>
+
+<div class="game">
+
+<h1>FACE THE DRAGON</h1>
+
+<button class="surrenderBtn" onclick="surrender()">
+SURRENDER
+</button>
+
+<div>DRAGON</div>
+<div class="bar"><div id="bossHP" class="fill"></div></div>
+
+<div>YOU</div>
+<div class="bar"><div id="playerHP" class="fill"></div></div>
+
+<div class="scene">
+
+<img src="assets/game/dragon.png" class="dragon">
+
+<img src="assets/game/knightt.webp" class="player" id="knight">
+
+<div id="effects"></div>
+
+</div>
+
+<div id="text">
+The dragon watches...
+</div>
+
+<button onclick="powerMove()">POWER MOVE</button>
+
+<button onclick="action('roll')">ROLL</button>
+
+<button onclick="action('block')">BLOCK</button>
+
+<button onclick="action('attack')">ATTACK</button>
+
+<br>
+
+<button class="returnBtn"
+onclick="history.back()">
+RETURN TO LAST PAGE
+</button>
+
+</div>
+
+<audio autoplay loop>
+<source src="assets/game/bossmusic.mp3">
+</audio>
+
+<script>
+
+for(let i=0;i<140;i++){
+
+let p=document.createElement("div");
+
+p.className="particle";
+
+p.style.left=Math.random()*100+"vw";
+
+p.style.bottom=Math.random()*100+"vh";
+
+p.style.animationDuration=4+Math.random()*10+"s";
+
+document.body.appendChild(p);
+
+}
+
+let bossHP=100;
+let playerHP=100;
+
+let moves=["roll","block","attack"];
+let correct;
+
+let player=document.querySelector(".player");
+let dragon=document.querySelector(".dragon");
+
+let scene=document.querySelector(".scene");
+let effects=document.getElementById("effects");
+
+let text=document.getElementById("text");
+
+nextMove();
+
+function powerMove(){
+
+text.innerText="PLUS ULTRA";
+
+player.classList.add("charge");
+
+setTimeout(()=>{
+
+player.classList.add("spin");
+
+scene.classList.add("shake");
+
+bossHP=0;
+
+updateBars();
+
+setTimeout(win,1400);
+
+},1600);
+
+}
+
+document.getElementById("knight").onclick=powerMove;
+
+function nextMove(){
+
+correct=moves[Math.floor(Math.random()*3)];
+
+if(correct=="roll") text.innerText="Dragon lunges";
+
+if(correct=="block") text.innerText="Flames erupt";
+
+if(correct=="attack") text.innerText="Dragon exposed";
+
+}
+
+function action(choice){
+
+player.classList.add(choice);
+
+setTimeout(()=>player.classList.remove(choice),600);
+
+if(choice=="roll") dust();
+
+if(choice=="attack") slash();
+
+if(choice==correct){
+
+bossHP-=34;
+
+text.innerText="Direct hit";
+
+}else{
+
+playerHP-=25;
+
+text.innerText="Fire engulfs you";
+
+fire();
+
+scene.classList.add("shake");
+
+setTimeout(()=>scene.classList.remove("shake"),300);
+
+}
+
+updateBars();
+
+if(playerHP<=0) lose();
+else if(bossHP<=0) win();
+else setTimeout(nextMove,900);
+
+}
+
+function slash(){
+
+let s=document.createElement("div");
+
+s.className="slash";
+
+effects.appendChild(s);
+
+setTimeout(()=>s.remove(),350);
+
+}
+
+function fire(){
+
+let f=document.createElement("div");
+
+f.className="fire";
+
+effects.appendChild(f);
+
+setTimeout(()=>f.remove(),700);
+
+}
+
+function dust(){
+
+let d=document.createElement("div");
+
+d.className="dust";
+
+effects.appendChild(d);
+
+setTimeout(()=>d.remove(),500);
+
+}
+
+function surrender(){
+
+let flames=document.createElement("div");
+
+flames.className="flameScreen";
+
+document.body.appendChild(flames);
+
+/* shake screen while burning */
+
+scene.classList.add("shake");
+
+setTimeout(()=>{
+
+scene.classList.remove("shake");
+
+/* remove flame layer */
+
+flames.remove();
+
+/* show death screen */
+
+lose();
+
+},1800);
+
+}
+function updateBars(){
+
+document.getElementById("bossHP").style.width=bossHP+"%";
+
+document.getElementById("playerHP").style.width=playerHP+"%";
+
+}
+
+function win(){
+
+let o=document.createElement("div");
+
+o.className="overlay";
+
+o.innerHTML="VICTORY ACHIEVED<br><br><button onclick='location.reload()'>AGAIN</button>";
+
+document.body.appendChild(o);
+
+}
+
+function lose(){
+
+let o=document.createElement("div");
+
+o.className="overlay";
+
+o.style.color="red";
+
+o.innerHTML="YOU DIED<br><br><button onclick='location.reload()'>TRY AGAIN</button>";
+
+document.body.appendChild(o);
+
+}
+
+</script>
+
+</body>
+
+</html>
